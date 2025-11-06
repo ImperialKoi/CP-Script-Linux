@@ -1,0 +1,12 @@
+Category	Task / Command	Action Required	Why It Matters
+Forensics	① lsb_release -a → Codename② locate '*.mp3'	Q1 – Find Linux codename (e.g., “vanessa”). Q2 – Find unauthorized MP3 directory (/home/twellick/Music).	Build familiarity with system identification & file search skills.
+User Accounts / Groups	Control Center → Users and Groups	Remove unauthorized users (leon, oirving, romero). Demote tcolby, mralbern to standard users (not admins).	Enforces least privilege and prevents unauthorized access.
+Password Management	Control Center → Users and Groups → Password	Change weak password for pmccleery → generate secure one.	Prevents easy brute-force and credential reuse attacks.
+Firewall / Network Protection	Control Center → Firewall Configuration or sudo ufw enable	Enable UFW (Uncomplicated Firewall).	Blocks unauthorized incoming/outgoing connections.
+Critical Services	sudo apt install -y apache2 → auto-starts service	Ensure Apache2 is installed and running (per README).	Supports secure service management and deployment skills.
+System Updates	Control Center → Update Manager → Preferences → Automation tab	Set Update Manager to “Apply updates automatically.”	Keeps packages patched and reduces vulnerability window.
+Package Upgrades	sudo apt update && sudo apt full-upgrade -y	Update Systemd, OpenSSH, Chromium, and GIMP.	Patches known CVE vulnerabilities and improves stability.
+Prohibited Media Files	locate '*.mp3' → sudo rm /home/twellick/Music/*.mp3	Remove non-work related MP3 files.	Reduces risk of malware and policy violations.
+Unauthorized Software	sudo apt purge -y ophcrack* wireshark*	Remove Wireshark and Ophcrack.	Eliminates password-cracking and sniffing tools.
+SSH Security	sudo gedit admin:///etc/ssh/sshd_config → edit PermitRootLogin no → sudo systemctl restart ssh	Disable root SSH login.	Prevents remote superuser access compromise.
+Penalties / Avoid	Critical services and platform support	❌ Do not run image in VirtualBox (unsupported).❌ Do not disable or remove OpenSSH (–5 pts).	Avoid lost points and maintain required critical services.

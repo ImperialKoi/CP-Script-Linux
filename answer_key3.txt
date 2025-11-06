@@ -1,0 +1,14 @@
+Category	Task / Command	Action Required	Why It Matters
+Forensics 1–3	ss -tlnp, `ps -ef	grep python, tshark, steghide`	① Locate Python backdoor → /usr/share/zod/kneelB4zod.py.② Extract plaintext passwords from ftp_capture.pcap with tshark.③ Decode override.txt (base64) → passphrase “VisionsAcademy”; extract message.txt from stanlee.jpg, run md5sum.
+User Accounts / Groups	sudo deluser --remove-home pengurusudo gpasswd -d ham sudo	Remove unauthorized user penguru.Remove ham from sudo group.	Restricts access and reduces attack surface.
+Password Management	sudo chage -M 90 noirsudo passwd -l root	Set max password age 90 days for noir.Lock root password (blank removed).	Enforces rotation and secures superuser access.
+Group Management	sudo addgroup spidersudo gpasswd -M may,peni,stan,miguel spider	Create group spider and add users.	Organizes permissions and collaboration.
+Password Policy / PAM	Edit /etc/pam.d/common-password & common-auth	Add minlen=10, remember=3, remove nullok.	Enforces strong and non-reused passwords.
+Account Lockout Policy	Create /usr/share/pam-configs/faillock* files + sudo pam-auth-update	Configure faillock for authfail, authsucc, preauth notifications.	Limits brute-force attacks and alerts on lockout.
+Kernel Hardening	/etc/sysctl.conf → kernel.randomize_va_space=2, net.ipv4.tcp_syncookies=1 then sudo sysctl --system	Enable ASLR and TCP SYN cookies.	Mitigates buffer-overflow and DoS attacks.
+Firewall / Network	sudo ufw enable or Control Center → Firewall Config	Enable UFW.	Filters traffic and reduces exposure.
+Services / Processes	sudo systemctl disable --now nginx, squid	Disable unneeded Nginx and Squid services.	Reduces attack surface.
+Updates / Packages	Control Center → Update Manager → Automation tab → “Apply updates automatically”	Enable auto updates and update VSFTPD (sudo apt update && sudo apt full-upgrade -y).	Keeps system patched and secure.
+Prohibited Files / Software	sudo locate '*.ogg' → sudo rm … sudo rm /usr/games/pyrdp-master.zip sudo apt purge -y doona xprobe	Remove non-work media (.ogg), pyrdp archive, and unauthorized apps.	Eliminates malware and policy violations.
+Backdoor Removal	sudo rm -f /usr/share/zod/kneelB4zod.py sudo pkill -f kneelB4zod.py	Remove Zod Python backdoor.	Prevents remote unauthorized access.
+Penalties / Avoid	Critical Services ( VSFTP, FTP files )	❌ Do not stop or remove VSFTP (–5 pts).❌ Do not delete authorized FTP files (–5 pts).	Maintains required functionality and avoids score loss.

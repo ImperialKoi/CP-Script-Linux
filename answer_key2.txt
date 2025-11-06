@@ -1,0 +1,120 @@
+Category	Task / Command	Action Required	Why It Matters
+Forensics	Desktop → “Forensics Q1” & “Forensics Q2”	"Q1 – Decode Base64 → answer = “lion”.
+Q2 – Find prohibited MP3 path via locate '*.mp3'."	Builds Linux file-search and encoding/decoding skills.
+User Accounts / Groups	"GUI → Settings → Users or terminal sudo deluser harry etc.
+sudo deluser --remove-home harry
+sudo deluser hamlet sudo
+Verify : groups hamlet  # sudo should be gone
+passwd alice
+passwd -e alice  #force user to change passwd
+
+sudo groupadd pioneers
+sudo usermod -aG pioneers sybella
+groups sybella
+"	"Remove unauthorized user harry.
+Remove admin rights from hamlet.
+Change weak password for alice.
+Add sybella to group pioneers."	Enforces least-privilege and secure access control.
+Password & Authentication Policies	"/etc/login.defs
+PASS_MAX_DAYS   90     # force password change every 90 days
+PASS_MIN_DAYS   1      # wait at least 1 day before next change
+PASS_WARN_AGE   7      # warn 7 days before expiry
+PASS_MIN_LEN    10     # advisory only – not enforced by PAM
+
+/etc/pam.d/common-password
+password requisite pam_pwquality.so retry=3 minlen=10 difok=3 ucredit=-1 lcredit=-1 dcredit=-1
+
+/etc/pam.d/common-auth
+auth    [success=1 default=ignore] pam_unix.so nullok
+
+###############################################################################
+#  Secure PAM Authentication Configuration
+#  Purpose: Enforce lockout after repeated failures, disable blank passwords,
+#           and use standard local (shadow) authentication.
+###############################################################################
+
+# ----- 1️⃣ Lock account after 3 failed login attempts for 15 minutes -----
+auth     required    pam_faillock.so preauth silent deny=3 unlock_time=900
+
+# ----- 2️⃣ Primary authentication using local password (no null passwords) -----
+auth     [success=1 default=bad] pam_unix.so try_first_pass
+
+# ----- 3️⃣ Apply faillock again after authentication phase -----
+auth     [default=die] pam_faillock.so authfail deny=3 unlock_time=900
+
+# ----- 4️⃣ Record success to reset failure counter -----
+auth     sufficient   pam_faillock.so authsucc
+
+# ----- 5️⃣ Optional: support MFA (Google Authenticator, Duo, etc.) -----
+# auth    required     pam_google_authenticator.so nullok
+
+# ----- 6️⃣ Safety fallback -----
+auth     requisite    pam_deny.so
+auth     required     pam_permit.so
+"	"Add minlen=10 to pam_unix.so line.
+Remove nullok to disallow blank passwords."	Prevents weak or empty passwords from authenticating.
+Network Security / Kernel	"/etc/sysctl.conf → net.ipv4.tcp_syncookies=1 then sudo sysctl --system
+### BASELINE (safe for most servers & workstations)
+
+# SYN flood protection
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_rfc1337 = 1            # TIME-WAIT assassination protection
+
+# Spoofing protection (strict). If you have asymmetric routing, set =2 (loose)
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+
+# Disable source routing
+net.ipv4.conf.all.accept_source_route = 0
+net.ipv4.conf.default.accept_source_route = 0
+net.ipv6.conf.all.accept_source_route = 0
+net.ipv6.conf.default.accept_source_route = 0
+
+# Ignore ICMP redirects (mitM hardening)
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.default.accept_redirects = 0
+net.ipv6.conf.all.accept_redirects = 0
+net.ipv6.conf.default.accept_redirects = 0
+
+# Do not send ICMP redirects (hosts/servers shouldn’t)
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.default.send_redirects = 0
+
+# ICMP sanity
+net.ipv4.icmp_echo_ignore_broadcasts = 1
+net.ipv4.icmp_ignore_bogus_error_responses = 1
+
+# Log suspicious traffic
+net.ipv4.conf.all.log_martians = 1
+net.ipv4.conf.default.log_martians = 1
+
+# Forwarding off unless you are a router
+net.ipv4.ip_forward = 0
+net.ipv6.conf.all.forwarding = 0
+
+# Keep TCP timestamps on (helps PAWS and PMTU); default is usually 1
+# net.ipv4.tcp_timestamps = 1
+"	Enable TCP SYN cookies.	Mitigates SYN flood (DoS) attacks.
+Firewall	sudo ufw enable → sudo ufw status	Enable UFW (Uncomplicated Firewall).	Limits unauthorized network access.
+File Permissions	"ls -alF /etc/shadow → sudo chmod 640 /etc/shadow
+/etc/passwd , /etc/groups
+ls -alF /boot/grub/grub.cfg → sudo chmod 600 /boot/grub/grub.cfg"	Fix insecure permissions on critical files.	Prevents password-hash leakage and bootloader exposure.
+Services & Software	sudo systemctl disable nginx + sudo systemctl stop nginx	Disable unnecessary Nginx service.	Reduces attack surface.
+System Updates / Packages	Software & Updates → Updates tab → “Check for updates = Daily”	Enable daily auto-check for updates.	Keeps system patched against known vulnerabilities.
+Applications / Programs	Software Updater or sudo apt update && sudo apt upgrade	"Update Firefox and Thunderbird.
+Remove prohibited AisleRiot (sudo apt remove aisleriot)."	Ensures safe versions and removes non-work apps.
+Files / Media	locate '*.mp3' → sudo rm /home/corey/Music/*.mp3	Delete non-work MP3 media files.	Prevents policy violations and reduces risk.
+SSH Hardening	"sudo gedit /etc/ssh/sshd_config → set PermitRootLogin no then sudo systemctl restart ssh
+
+PasswordAuthentication no      # only allow key-based auth
+PubkeyAuthentication yes
+PermitEmptyPasswords no
+LoginGraceTime 30
+MaxAuthTries 3
+MaxSessions 2
+
+
+Verfiy : sudo sshd -T | grep permitrootlogin
+"	Disable root SSH login.	Protects superuser account from remote compromise.
+Penalties / Avoid	Critical services & software	"❌ Do not disable OpenSSH (–5 pts).
+❌ Do not remove Firefox, Thunderbird, or Perl (–5 pts each)."	These are required system components per README.
